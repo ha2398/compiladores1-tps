@@ -1,0 +1,71 @@
+package lexsyn;
+
+import java_cup.runtime.*;
+
+parser code {:
+	public static void main(String args[]) throws Exception {
+		new parser(new Yylex(System.in)).parse();
+	}
+:}
+
+terminal LCBRACK, RCBRACK, SEMI, LPAREN, RPAREN;
+terminal INTT, CHART, BOOLT, FLOATT;
+terminal ASSIGN;
+terminal WHILE, IF, ELSE;
+
+terminal INTN;
+terminal REALN;
+
+terminal ID;
+
+terminal LT, LE, GT, GE;
+terminal PLUS, MINUS, MUL, DIV;
+
+non terminal program, block, decls, decl, type, stmts, stmt, rel, expr, term;
+non terminal unary, factor;
+
+precedence left PLUS, MINUS, MUL, DIV, ELSE;
+
+program	::= block
+	;
+block	::= LCBRACK decls stmts RCBRACK
+	;
+decls	::= decls decl
+	|		/* empty */
+	;
+decl 	::= type ID SEMI
+	;
+type	::= INTT
+	|		CHART
+	|		BOOLT
+	|		FLOATT
+	;
+stmts	::= stmts stmt
+	| 		/* empty */
+	;
+stmt 	::= ID ASSIGN expr SEMI
+	| 		IF LPAREN rel RPAREN stmt
+	| 		IF LPAREN rel RPAREN stmt ELSE stmt
+	|		WHILE LPAREN rel RPAREN stmt
+	|		block
+	;
+rel 	::= expr LT expr
+	| 		expr LE expr
+	| 		expr GT expr
+	| 		expr GE expr
+	|		expr
+	;
+expr 	::= expr PLUS term
+	| 		expr MINUS term
+	| 		term
+	;
+term 	::= term MUL unary
+ 	| 		term DIV unary
+ 	| 		unary
+ 	;
+unary 	::= MINUS unary
+	| 		factor
+	;
+factor 	::= INTN:n
+	| 		REALN:n
+	;
