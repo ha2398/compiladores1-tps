@@ -4,7 +4,10 @@ import java_cup.runtime.*;
 
 parser code {:
 	public static void main(String args[]) throws Exception {
-		new parser(new Yylex(System.in)).parse();
+		System.out.println("----------------------");
+		parser myParser = new parser(new Yylex(System.in));
+		myParser.parse();
+		System.out.println("Done.");
 	}
 :}
 
@@ -26,46 +29,110 @@ non terminal unary, factor;
 
 precedence left PLUS, MINUS, MUL, DIV, ELSE;
 
-program	::= block
+program	::= block:b {:
+				System.out.println("\n----------------------");
+				String rules = new String("program -> block\n" + b);
+				System.out.print(rules);
+			:}
 	;
-block	::= LCBRACK decls stmts RCBRACK
+block	::= LCBRACK decls:ds stmts:ss RCBRACK {:
+				RESULT = new String("block -> { decls stmts }\n" + ds + ss);
+			:}
 	;
-decls	::= decls decl
-	|		/* empty */
+decls	::= decls:ds decl:d {:
+				RESULT = new String("decls -> decls decl\n" + ds + d);
+			:}
+	|		/* empty */ {:
+				RESULT = new String("decls -> \n\n");
+			:}
 	;
-decl 	::= type ID SEMI
+decl 	::= type:t ID SEMI {:
+				RESULT = new String("decl -> type id;\n" + t);
+			:}
 	;
-type	::= INTT
-	|		CHART
-	|		BOOLT
-	|		FLOATT
+type	::= INTT {:
+				RESULT = new String("type -> int\n\n");
+			:} 
+	|		CHART {:
+				RESULT = new String("type -> char\n\n");
+			:}
+	|		BOOLT {:
+				RESULT = new String("type -> bool\n\n");
+			:}
+	|		FLOATT {:
+				RESULT = new String("type -> float\n\n");
+			:}
 	;
-stmts	::= stmts stmt
-	| 		/* empty */
+stmts	::= stmts:ss stmt:s {:
+				RESULT = new String("stmts -> stmts stmt\n" + ss + s);
+			:}
+	| 		/* empty */ {:
+				RESULT = new String("stmts -> \n\n");
+			:}
 	;
-stmt 	::= ID ASSIGN expr SEMI
-	| 		IF LPAREN rel RPAREN stmt
-	| 		IF LPAREN rel RPAREN stmt ELSE stmt
-	|		WHILE LPAREN rel RPAREN stmt
-	|		block
+stmt 	::= ID ASSIGN expr:e SEMI {:
+				RESULT = new String("stmt -> id = expr;\n" + e);
+			:}
+	| 		IF LPAREN rel:r RPAREN stmt:s {:
+				RESULT = new String("stmt -> if ( rel ) stmt\n" + r + s);
+			:}
+	| 		IF LPAREN rel:r RPAREN stmt:s1 ELSE stmt:s2 {:
+				RESULT = new String("stmt -> if ( rel ) stmt else stmt\n" + r + s1 + s2);
+			:}
+	|		WHILE LPAREN rel:r RPAREN stmt:s {:
+				RESULT = new String("stmt -> while ( rel ) stmt\n" + r + s);
+			:}
+	|		block:b {:
+				RESULT = new String("stmt -> block\n" + b);
+			:}
 	;
-rel 	::= expr LT expr
-	| 		expr LE expr
-	| 		expr GT expr
-	| 		expr GE expr
-	|		expr
+rel 	::= expr:e1 LT expr:e2 {:
+				RESULT = new String("rel -> expr < expr\n" + e1 + e2);
+			:}
+	| 		expr:e1 LE expr:e2 {:
+				RESULT = new String("rel -> expr <= expr\n" + e1 + e2);
+			:}
+	| 		expr:e1 GT expr:e2 {:
+				RESULT = new String("rel -> expr > expr\n" + e1 + e2);
+			:}
+	| 		expr:e1 GE expr:e2 {:
+				RESULT = new String("rel -> expr >= expr\n" + e1 + e2);
+			:}
+	|		expr:e {:
+				RESULT = new String("rel -> expr\n" + e);
+			:}
 	;
-expr 	::= expr PLUS term
-	| 		expr MINUS term
-	| 		term
+expr 	::= expr:e PLUS term:t {:
+				RESULT = new String("expr -> expr + term\n" + e + t);
+			:}
+	| 		expr:e MINUS term:t {:
+				RESULT = new String("expr -> expr - term\n" + e + t);
+			:}
+	| 		term:t {:
+				RESULT = new String("expr -> term\n" + t);
+			:}
 	;
-term 	::= term MUL unary
- 	| 		term DIV unary
- 	| 		unary
+term 	::= term:t MUL unary:u {:
+				RESULT = new String("term -> term * unary\n" + t + u);
+			:}
+ 	| 		term:t DIV unary:u {:
+				RESULT = new String("term -> term / unary\n" + t + u);
+			:}
+ 	| 		unary:u {:
+				RESULT = new String("term -> unary\n" + u);
+			:}
  	;
-unary 	::= MINUS unary
-	| 		factor
+unary 	::= MINUS unary:u {:
+				RESULT = new String("unary -> - unary\n" + u);
+			:}
+	| 		factor:f {:
+				RESULT = new String("unary -> factor\n" + f);
+			:} 
 	;
-factor 	::= INTN:n
-	| 		REALN:n
+factor 	::= INTN:n {:
+				RESULT = new String("factor -> num\n\n");
+			:}
+	| 		REALN:n {:
+				RESULT = new String("factor -> real\n\n");
+			:}
 	;
