@@ -1,6 +1,127 @@
 package lexsyn;
 
+import java.util.*;
+import java.io.*;
 import java_cup.runtime.*;
+
+action code {:
+	class TableS {
+		static final int size = 100;
+		String name[] = new String[size];
+		String atribute[] = new String[size];
+		int level[] = new int[size];
+		int col[] = new int[size];
+	}
+
+	class Hash extends Thread {
+		final static int maxLevel = 1000;
+		int scope[] = new int[10];
+		int hashTable[] = new int[509];
+		int curLevel;
+		int last; // index of last element on the table
+		int root; // index of first element on the table
+		TableS tb = new TableS();
+
+		public Hash() {
+			last = 1;
+			root = 0;
+			curLevel = 1;
+			scope[curLevel] = 1;
+		}
+
+		/* Methods */
+		void error(int errorNumber) {
+			switch(errorNumber) {
+				case 1:
+					System.out.println("Symbol table is full.");
+					break;
+				case 2:
+					System.out.println("Item was not found.");
+					break;
+				case 3:
+					System.out.println("Item already on the table.");
+					break;
+				default:
+			}
+		}
+
+		void enterBlock() {
+			curLevel++;
+
+			if (curLevel > maxLevel)
+				error(1);
+			else
+				scope[curLevel] = last;
+		}
+
+		void exitBlock() {
+			int S, B, k;
+			String ident;
+
+			S = last;
+			B = scope[curLevel];
+			while (S > B) {
+				S--;
+				k = (int)tb.name[S].charAt(0);
+				hashTable[k] = tb.col[S];
+			}
+
+			last = scope[curLevel];
+			curLevel--;
+		}
+
+		int getEntry(String x) {
+			int n, aux, k;
+			boolean found;
+
+			found = false;
+			n = (int)x.charAt(0);
+			k = hashTable[n];
+
+			while ((k != 0) && (!found)) {
+				if (x.equals(tb.name[k]))
+					found = true;
+				else
+					k = tb.col[k];
+			}
+
+			if (found)
+				return k;
+			else
+				error(2);
+
+			return -1;
+		}
+
+		void install(String x, String atribute) {
+			int n, k, aux;
+			boolean equals = false;
+
+			n = (int)x.charAt(0);
+			k = hashTable[n];
+
+			while (k >= scope[curLevel]) {
+				if (x.equals(tb.name[k]))
+					equals = true;
+
+				k = tb.col[k];
+			}
+
+			if (last == (maxLevel + 1))
+				error(1);
+			else if (!equals) {
+				tb.level[last] = curLevel;
+				tb.atribute[last] = atribute;
+				tb.name[last] = x;
+				tb.col[last] = hashTable[n];
+				hashTable[n] = last;
+				last++;
+			}
+		}
+	}
+
+	Hash h = new Hash();
+:}
 
 parser code {:
 	public static void main(String args[]) throws Exception {
