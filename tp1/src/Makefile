@@ -20,3 +20,4 @@ clean:
 	@ rm -f JLex/*.class *.lex.java
 	@ rm -f *.java
 	@ rm -rf lexsyn
+	@ rm -rf *.txt
