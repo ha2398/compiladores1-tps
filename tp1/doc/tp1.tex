@@ -109,6 +109,9 @@ Caso a análise léxica seja completada sem erros, o analisador sintático impri
 em caso de sucesso, todas as produções gramaticais utilizadas no programa e uma mensagem
 indicando sucesso.
 
+Além disso, em caso de sucesso, todos os tokens presentes no programa fonte serão impressos
+em um arquivo de texto no diretório do projeto.
+
 \section{Testes e Resultados}
 
 A fim de ilustar o uso dos analisadores desenvolvidos, nessa seção são mostrados
@@ -126,6 +129,10 @@ dois exemplos de teste.
  \item Saída
 
 \begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/tokens1.txt}
+\end{mdframed}
+ 
+\begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
     \inputminted[linenos, fontsize=\footnotesize]{text}{../src/output1.txt}
 \end{mdframed}
  
@@ -141,6 +148,10 @@ dois exemplos de teste.
 \end{mdframed}
  
  \item Saída
+ 
+\begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/tokens2.txt}
+\end{mdframed}
 
 \begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
     \inputminted[linenos, fontsize=\footnotesize]{text}{../src/output2.txt}
