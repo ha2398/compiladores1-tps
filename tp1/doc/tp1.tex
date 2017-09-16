@@ -42,6 +42,8 @@
 \end{titlepage}
 
 \newpage
+\tableofcontents
+\newpage
 
 \section{Descrição do Problema}
 
@@ -122,19 +124,26 @@ dois exemplos de teste.
 \begin{itemize}
  \item Entrada
  
- \begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
-    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/input/input1.txt}
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/input/correct4.txt}
 \end{mdframed}
  
  \item Saída
 
-\begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
-    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/tokens1.txt}
-\end{mdframed}
- 
-\begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
-    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/output1.txt}
-\end{mdframed}
+ \begin{itemize}
+ 	\item Tokens
+
+ 	\begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/tokens4.txt}
+	\end{mdframed}
+
+	\item Análise
+
+	\begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/correct4.out}
+	\end{mdframed}
+
+ \end{itemize}
  
 \end{itemize}
 
@@ -143,39 +152,49 @@ dois exemplos de teste.
 \begin{itemize}
  \item Entrada
  
- \begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
-    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/input/input2.txt}
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/input/wrong2.txt}
 \end{mdframed}
  
  \item Saída
  
-\begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
-    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/tokens2.txt}
-\end{mdframed}
+ \begin{itemize}
+ 	\item Tokens
 
-\begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
-    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/output2.txt}
-\end{mdframed}
+	\begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/tokens2.txt}
+	\end{mdframed} 	
+
+	\item Análise
+
+	\begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../src/wrong2.out}
+	\end{mdframed}
+
+ \end{itemize}
  
 \end{itemize}
 
 \section{Código Fonte}
 
+Todo o código fonte pode ser obtido em um repositório do GitHub
+\footnote{https://github.com/ha2398/compiladores1-tps}.
+
 \subsection{tp1.lex}
 
-\begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
+\begin{mdframed}[linecolor=black, leftline=false, rightline=false]
     \inputminted[linenos, fontsize=\footnotesize]{text}{../src/tp1.lex}
 \end{mdframed}
 
 \subsection{tp1.cup}
 
-\begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
+\begin{mdframed}[linecolor=black, leftline=false, rightline=false]
     \inputminted[linenos, fontsize=\footnotesize]{text}{../src/tp1.cup}
 \end{mdframed}
 
 \subsection{Makefile}
 
-\begin{mdframed}[linecolor=black, leftline=false, rightline=false, backgroundcolor=gray!20!white]
+\begin{mdframed}[linecolor=black, leftline=false, rightline=false]
     \inputminted[linenos, fontsize=\footnotesize]{text}{../src/Makefile}
 \end{mdframed}
 
