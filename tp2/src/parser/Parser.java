@@ -87,7 +87,7 @@ public class Parser {
 
 	Stmt stmts() throws IOException {
 		if (this.look.tag == '}')
-			return Stmt.null;
+			return Stmt.Null;
 		else
 			return new Seq(stmt(), stmts());
 	}
@@ -100,7 +100,7 @@ public class Parser {
 		switch (this.look.tag) {
 		case ';':
 			move();
-			return Stmt.null;
+			return Stmt.Null;
 
 		case Tag.IF:
 			match(Tag.IF);
@@ -207,7 +207,7 @@ public class Parser {
 	Expr equality() throws IOException {
 		Expr x = rel();
 
-		while (this.look.tag = Tag.EQ || this.look.tag == Tag.NE) {
+		while (this.look.tag == Tag.EQ || this.look.tag == Tag.NE) {
 			Token tok = this.look;
 			move();
 			x = new Rel(tok, x, rel());

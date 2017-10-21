@@ -1,17 +1,6 @@
 package lexer;
 
 public class Word extends Token {
-    public String lexeme = "";
-
-    public Word(String s, int tag) {
-        super(tag);
-        this.lexeme = s;
-    }
-
-    public String toString() {
-        return this.lexeme;
-    }
-
     public static final Word
         and = new Word("&&", Tag.AND),
         or = new Word("||", Tag.OR),
@@ -23,4 +12,15 @@ public class Word extends Token {
         True = new Word("true", Tag.TRUE),
         False = new Word("false", Tag.FALSE),
         temp = new Word("t", Tag.TEMP);
+        
+    public String lexeme = "";
+
+    public Word(String s, int tag) {
+        super(tag);
+        this.lexeme = s;
+    }
+
+    public String toString() {
+        return this.lexeme;
+    }
 }

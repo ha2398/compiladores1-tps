@@ -37,13 +37,13 @@ public class Lexer {
         if (this.peek != c)
             return false;
 
-        this.peek =;
+        this.peek = 0;
         return true;
     }
 
-    public Token scan() throws IOEXception {
+    public Token scan() throws IOException {
         for ( ; ; readch()) {
-            if (this.peek == '' || this.peek == 't')
+            if (this.peek == 0 || this.peek == 't')
                 continue;
             else if (peek == '\n')
                 this.line++;
@@ -52,7 +52,7 @@ public class Lexer {
         }
 
         switch (this.peek) {
-        case '&': case '=':
+        case '&':
             if (readch('&'))
                 return Word.and;
             else
@@ -74,12 +74,12 @@ public class Lexer {
                 return new Token('!');
         case '<':
             if (readch('='))
-                return new Word.le;
+                return Word.le;
             else
                 return new Token('<');
         case '>':
             if (readch('='))
-                return new Word.ge;
+                return Word.ge;
             else
                 return new Token('>');
         }

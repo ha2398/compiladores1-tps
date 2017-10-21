@@ -9,5 +9,5 @@ public class Stmt extends Node {
 
 	int after = 0;
 
-	public static Stmt Enclosing = Stmt.null;
+	public static Stmt Enclosing = Stmt.Null;
 }

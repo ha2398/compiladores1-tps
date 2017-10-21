@@ -37,7 +37,7 @@ public class Logical extends Expr {
 	}
 
 	public String toString() {
-		return this.expr1.toString() + " " this.op.toString() + " " +
-			this.expr2.toString();
+		return this.expr1.toString() + " " + this.op.toString() + " " 
+			+ this.expr2.toString();
 	}
 }

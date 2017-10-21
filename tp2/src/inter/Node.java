@@ -1,4 +1,4 @@
-packag inter;
+package inter;
 
 import lexer.*;
 
@@ -23,6 +23,6 @@ public class Node {
 	}
 
 	public void emit(String s) {
-		System.out.prinln("\t" + s);
+		System.out.println("\t" + s);
 	}
 }
