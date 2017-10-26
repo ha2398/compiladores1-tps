@@ -43,7 +43,7 @@ public class Lexer {
 
     public Token scan() throws IOException {
         for ( ; ; readch()) {
-            if (this.peek == 0 || this.peek == 't')
+            if (this.peek == ' ' || this.peek == '\t' || this.peek == 0)
                 continue;
             else if (peek == '\n')
                 this.line++;
