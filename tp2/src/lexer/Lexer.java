@@ -10,6 +10,7 @@ public class Lexer {
     Hashtable words = new Hashtable();
 
     public Lexer() {
+        System.out.println("-------------------BEGIN INPUT-------------------");
         reserve(new Word("if", Tag.IF));
         reserve(new Word("else", Tag.ELSE));
         reserve(new Word("while", Tag.WHILE));
@@ -29,6 +30,13 @@ public class Lexer {
 
     public void readch() throws IOException {
         this.peek = (char) System.in.read();
+
+        if (this.peek != 65535) { // EOF
+            System.out.print(this.peek);
+        } else {
+            System.out.println();
+            System.out.println("--------------------END INPUT--------------------");
+        }
     }
 
     public boolean readch(char c) throws IOException {
@@ -43,12 +51,22 @@ public class Lexer {
 
     public Token scan() throws IOException {
         for ( ; ; readch()) {
-            if (this.peek == ' ' || this.peek == '\t' || this.peek == 0)
+            if (this.peek == ' ' || this.peek == '\t' || this.peek == 0) {
                 continue;
-            else if (peek == '\n')
+            } else if (this.peek == '/') {
+                readch();
+
+                if (this.peek == '/') {
+                    while (this.peek != '\n')
+                        readch();
+
+                    this.line++;
+                }
+            } else if (this.peek == '\n') {
                 this.line++;
-            else
+            } else {
                 break;
+            }
         }
 
         switch (this.peek) {

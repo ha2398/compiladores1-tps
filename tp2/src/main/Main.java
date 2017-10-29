@@ -9,6 +9,5 @@ public class Main {
 		Lexer lex = new Lexer();
 		Parser parse = new Parser(lex);
 		parse.program();
-		System.out.println();
 	}
 }
