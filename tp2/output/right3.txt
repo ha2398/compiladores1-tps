@@ -1,0 +1,29 @@
+-------------------BEGIN INPUT-------------------
+{
+	int n; int u; int result; int i; int t;
+
+	n = 10;
+	u = 0;
+	result = 1;
+
+	i = 2;
+	while (i <= n) {
+		t = u + result;
+		u = result;
+		result = t;
+
+		i = i + 1;
+	}
+}
+--------------------END INPUT--------------------
+L1:	n = 10
+L3:	u = 0
+L4:	result = 1
+L5:	i = 2
+L6:	iffalse i <= n goto L2
+L7:	t = u + result
+L8:	u = result
+L9:	result = t
+L10:	i = i + 1
+	goto L6
+L2:

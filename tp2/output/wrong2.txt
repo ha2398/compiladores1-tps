@@ -1,0 +1,25 @@
+-------------------BEGIN INPUT-------------------
+{
+	int i; int j; float v; float x; float[100] a;
+	while( true ) {
+		do i = i+1; while( a[i] < v);
+		do j = j-1; while( a[j] > v);
+		if( i >= j) break;
+		x = a[i]; a[i] = a[j]; c[Exception in thread "main" java.lang.Error: 
+		near line7: c undeclared
+	at parser.Parser.error(Parser.java:24)
+	at parser.Parser.assign(Parser.java:168)
+	at parser.Parser.stmt(Parser.java:157)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.block(Parser.java:48)
+	at parser.Parser.stmt(Parser.java:154)
+	at parser.Parser.stmt(Parser.java:128)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.block(Parser.java:48)
+	at parser.Parser.program(Parser.java:35)
+	at main.Main.main(Main.java:11)

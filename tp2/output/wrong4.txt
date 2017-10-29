@@ -1,0 +1,30 @@
+-------------------BEGIN INPUT-------------------
+{
+	float [8] numbers;
+	float temp;
+	int length;
+	int j;
+	int i;
+
+	numbers[0] = 90;
+	numbers[1] = -55.19;
+	numbers[2] = 0;
+	numbers[3] = 2592;
+	numbers[4] = 1.67;
+	numbers[5] = 3.1415;
+	numbers[6] = 2,Exception in thread "main" java.lang.Error: 
+	near line14: syntax error
+	at parser.Parser.error(Parser.java:24)
+	at parser.Parser.match(Parser.java:31)
+	at parser.Parser.assign(Parser.java:179)
+	at parser.Parser.stmt(Parser.java:157)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.stmts(Parser.java:92)
+	at parser.Parser.block(Parser.java:48)
+	at parser.Parser.program(Parser.java:35)
+	at main.Main.main(Main.java:11)

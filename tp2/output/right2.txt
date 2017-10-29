@@ -1,0 +1,77 @@
+-------------------BEGIN INPUT-------------------
+{
+	float [8] numbers;
+	float temp;
+	int length;
+	int j;
+	int i;
+
+	numbers[0] = 90;
+	numbers[1] = -55.19;
+	numbers[2] = 0;
+	numbers[3] = 2592;
+	numbers[4] = 1.67;
+	numbers[5] = 3.1415;
+	numbers[6] = 2.71;
+	numbers[7] = 18;
+
+	length = 8;
+
+	i = 0;
+	while ( i < length ) {
+		j = i;
+
+		while (j > 0 && numbers[j] < numbers[j - 1]) {
+			temp = numbers[j];
+			numbers[j] = numbers[j - 1];
+			numbers[j - 1] = temp;
+			j = j -1;
+		}
+
+		i = i + 1;
+	}
+}
+--------------------END INPUT--------------------
+L1:	t1 = 0 * 8
+	numbers [ t1 ] = 90
+L3:	t2 = 1 * 8
+	t3 = minus 55.19
+	numbers [ t2 ] = t3
+L4:	t4 = 2 * 8
+	numbers [ t4 ] = 0
+L5:	t5 = 3 * 8
+	numbers [ t5 ] = 2592
+L6:	t6 = 4 * 8
+	numbers [ t6 ] = 1.6700001
+L7:	t7 = 5 * 8
+	numbers [ t7 ] = 3.1414998
+L8:	t8 = 6 * 8
+	numbers [ t8 ] = 2.71
+L9:	t9 = 7 * 8
+	numbers [ t9 ] = 18
+L10:	length = 8
+L11:	i = 0
+L12:	iffalse i < length goto L2
+L13:	j = i
+L14:	iffalse j > 0 goto L15
+	t10 = j * 8
+	t11 = numbers [ t10 ] 
+	t12 = j - 1
+	t13 = t12 * 8
+	t14 = numbers [ t13 ] 
+	iffalse t11 < t14 goto L15
+L16:	t15 = j * 8
+	temp = numbers [ t15 ] 
+L17:	t16 = j * 8
+	t17 = j - 1
+	t18 = t17 * 8
+	t19 = numbers [ t18 ] 
+	numbers [ t16 ] = t19
+L18:	t20 = j - 1
+	t21 = t20 * 8
+	numbers [ t21 ] = temp
+L19:	j = j - 1
+	goto L14
+L15:	i = i + 1
+	goto L12
+L2:

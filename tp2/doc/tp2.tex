@@ -1,0 +1,287 @@
+ % % % % % % %% %PREAMBULO% % % % % % % % % % %
+\documentclass[a4paper,12pt]{report}
+
+\usepackage{fancyhdr}
+\usepackage[utf8]{inputenc}
+\usepackage{minted}
+\usepackage{graphicx}
+\usepackage[portuguese]{babel}
+\usepackage{mdframed}
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+ 
+\usemintedstyle{bw}
+
+\pagestyle{fancy}\lhead{ Um Front-End Completo do Compilador de SmallL } \rhead{DCC053 - Trabalho Prático 2}
+\renewcommand{\contentsname}{Índice}
+\renewcommand\thesection{\arabic{section}}
+
+ % % % % % % %% %DOCUMENTO% % % % % % % % % % %
+
+\begin{document}
+
+% Capa
+\begin{titlepage}
+	\centering
+	{\scshape\LARGE Universidade Federal de Minas Gerais \par}
+	{\scshape\Large Instituto de Ciências Exatas \par}
+	{\scshape\Large Departamento de Ciência da Computação \par}
+	\vfill
+	{\huge\bfseries \textbf{Compiladores I - DCC053} \par}
+	{\huge\bfseries \textbf{Trabalho Prático 2\\Um Front-End Completo do Compilador de SmallL} \par}
+	\vfill
+	{\Large Hugo Araújo de Sousa\\(2013007463)\par}
+	\vfill
+	{\large 2º Semestre de 2017\par}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Descrição do Problema}
+
+Em projetos de construção de compiladores, dizemos que o \textbf{front-end} do compilador é
+a parte do mesmo responsável pela análise do código fonte. Sendo assim, essa é a parte dependente
+da linguagem fonte. Ela consiste geralmente de três etapas:
+
+\begin{enumerate}
+ \item Análise Léxica: Lê o o programa fonte agrupando os símbolos que o compõem em sequências significativas.
+ Para cada uma dessas sequências, armazena-se informações importantes para etapas posteriores.
+ 
+ \item Análise Sintática: Utiliza a saída da análise léxica para impor uma estrutura gramatical ao programa
+ fonte. 
+ 
+ \item Análise Semântica: Verifica a consistência semântica do programa fonte, estabelecida na própria definição
+ da linguagem. Nessa etapa ocorre a verificação de tipos.
+ 
+ \item Geração de Código Intermediário: Gera uma representação intermediária de baixo nível ou do tipo linguagem
+ de máquina do programa fonte. Essa representação deve ser facilmente traduzida para a máquina alvo.
+\end{enumerate}
+
+Nesse trabalho, é construído um front-end para a mini-linguagem SmallL, definida pela gramática mostrada a seguir.
+
+\begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+  \inputminted[linenos, fontsize=\footnotesize]{text}{grammar.txt}
+\end{mdframed}
+
+\begin{center}
+ Gramática da linguagem SmallL. 'e' indica a string vazia.
+\end{center}
+
+\section{Metodologia}
+
+O front-end segue a implementação do Livro Texto da disciplina. Dessa forma, o código (escrito na linguagem
+Java), foi dividido em cinco pacotes: \textbf{main}, \textbf{lexer}, \textbf{symbols}, \textbf{parser} e
+\textbf{inter}. Esses pacotes são descritos na Seção \ref{sec:cf}. Cada um deles representa uma etapa do front-end.
+
+\subsection{Análise Léxica}
+
+A análise léxica é feita de forma tradicional, lendo os caracteres do programa de entrada e tentando agrupá-los 
+em tokens reconhecidos pela gramática da linguagem. Para armazenar informações de símbolos, a tabela de símbolos
+foi implementada utilizando-se uma tabela Hash.
+
+O analisador léxico armazena o número da linha do programa fonte em que se encontra a fim de fornecer essa
+informação ao usuário no caso de erro.
+
+\subsection{Análise Sintática}
+
+O analisador sintático atua sempre em comunicação com o analisador léxico, requisitando tokens e usando-os
+para construir a estrutura gramatical definida pela gramática da linguagem. Para esse trabalho a análise sintática
+foi implementada utilizando o algoritmo de análise descendente. 
+
+\subsection{Análise Semântica}
+
+A análise semântica implementada no trabalho se resume à verificação de tipos, que é então feita de forma 
+integrada com a geração de código intermediário.
+
+\subsection{Geração de Código Intermediário}
+
+A geração de código intermediário segue o esquema de geração de código com três endereços. Esse código 
+suporta expressões ariméticas, expressões de desvio e declarações.
+
+\section{Código Fonte} \label{sec:cf}
+
+Os pacotes do projeto são descritos a seguir. Todo o código fonte pode ser obtido em um repositório do GitHub
+\footnote{https://github.com/ha2398/compiladores1-tps/tree/master/tp2}.
+
+\begin{itemize}
+ \item \textbf{main} Programa principal, realiza a integração de todos os outros módulos.
+ 
+ \item \textbf{lexer} Implementa a análise léxica do front-end.
+ 
+ \item \textbf{parser} Analisador semântico.
+ 
+ \item \textbf{symbols} Análise semântica, notadamente verificação de tipos.
+ 
+ \item \textbf{inter} Geração de código intermediário de três endereços.
+\end{itemize}
+
+\section{Compilação e Uso}
+
+A fim de facilitar a compilação do projeto, um arquivo Makefile é fornecido na diretório src. Para
+compilar o projeto, basta estar no diretório src e executar o comando \textbf{make}.
+
+Já para executar o front-end, executa-se, na pasta src, o seguinte comando:
+
+\begin{center}
+ java main.Main $ < $ arquivo\_entrada
+\end{center}
+
+Onde arquivo\_entrada indica o nome do arquivo fonte a ser analisado.
+
+\section{Testes e Resultados}
+
+A fim de verificar o funcionamento correto do projeto, alguns testes foram desenvolvidos. Suas entradas 
+e saídas são apresentadas a seguir.
+
+\subsection{right1.txt}
+
+Descreve um arquivo de teste simples, de sintaxe correta, que simplesmente executa algumas declarações e 
+comandos de loop, atribuições e expressões aritméticas.
+
+\begin{itemize}
+ \item Entrada
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../input/right1.txt}
+\end{mdframed}
+ 
+ \item Saída
+
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../output/right1.txt}
+  \end{mdframed}
+  
+\end{itemize}
+
+\subsection{right2.txt}
+
+Implementação do algoritmo Insertion Sort na linguagem SmallL. A sintaxe está correta.
+
+\begin{itemize}
+ \item Entrada
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../input/right2.txt}
+\end{mdframed}
+ 
+ \item Saída
+
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../output/right2.txt}
+  \end{mdframed}
+  
+\end{itemize}
+
+\subsection{right3.txt}
+
+Calcula o décimo número da sequência de Fibonacci. A sintaxe está correta.
+
+\begin{itemize}
+ \item Entrada
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../input/right3.txt}
+\end{mdframed}
+ 
+ \item Saída
+
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../output/right3.txt}
+  \end{mdframed}
+  
+\end{itemize}
+
+Os arquivos de teste a seguir tratam-se dos mesmos arquivos mostrados acima, porém com pequenos erros de sintaxe.
+
+\subsection{wrong1.txt}
+
+\begin{itemize}
+ \item Entrada
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../input/wrong1.txt}
+\end{mdframed}
+ 
+ \item Saída
+
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../output/wrong1.txt}
+  \end{mdframed}
+  
+\end{itemize}
+
+\subsection{wrong2.txt}
+
+\begin{itemize}
+ \item Entrada
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../input/wrong2.txt}
+\end{mdframed}
+ 
+ \item Saída
+
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../output/wrong2.txt}
+  \end{mdframed}
+  
+\end{itemize}
+
+\subsection{wrong3.txt}
+
+\begin{itemize}
+ \item Entrada
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../input/wrong3.txt}
+\end{mdframed}
+ 
+ \item Saída
+
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../output/wrong3.txt}
+  \end{mdframed}
+  
+\end{itemize}
+
+\subsection{wrong4.txt}
+
+\begin{itemize}
+ \item Entrada
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../input/wrong4.txt}
+\end{mdframed}
+ 
+ \item Saída
+
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../output/wrong4.txt}
+  \end{mdframed}
+  
+\end{itemize}
+
+\section{Conclusão}
+
+O trabalho foi desenvolvido sem dificuldades a partir do código já fornecido na especificação. Apenas algumas
+correções de sintaxe foram necessárias juntamente com ajustes para listagem de código fonte. De maneira geral,
+o trabalho em questão permitiu um maior entendimento sobre o front-end de um compilador, fornecendo uma visão
+mais detalhada das etapas que o compõem.
+
+\section{Referências}
+
+\begin{itemize}
+ \item Aho, A.V.; Sethi, R.; Ullman, J.D. Compilers Principles, Techniques, and
+ Tools, Addison Wesley, 1986.
+\end{itemize}
+
+
+\end{document}
