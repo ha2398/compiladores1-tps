@@ -1,0 +1,32 @@
+{
+	float [8] numbers;
+	float temp;
+	int length;
+	int j;
+	int i;
+
+	numbers[0] = 90;
+	numbers[1] = -55.19;
+	numbers[2] = 0;
+	numbers[3] = 2592;
+	numbers[4] = 1.67;
+	numbers[5] = 3.1415;
+	numbers[6] = 2,1;
+	numbers[7] = 18;
+
+	length = 8;
+
+	i = 0;
+	while ( i < length ) {
+		j = i;
+
+		while (j > 0 && numbers[j] < numbers[j - 1]) {
+			temp = numbers[j];
+			numbers[j] = numbers[j - 1];
+			numbers[j - 1] = temp;
+			j = j -1;
+		}
+
+		i = i + 1;
+	}
+}
