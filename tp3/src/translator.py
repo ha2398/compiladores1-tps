@@ -24,11 +24,25 @@ MAX_SIZE = TSIZES['float']
 # Stack top
 ST = 0
 
+# Code stack top
+CT = 0
+
 # Address, on the stack, of the variables.
 address = {}
 
 # Dictionary which returns the Quadruple by label.
 labels = {}
+
+# Instruction format
+INSTR = '{}\t{}\t{}\t{}\t; {}\n'
+
+# Instruction buffer
+INSTR_BUFFER = []
+
+# Backpatching dependency dictionary. Key -> Index of instruction on
+# INSTR_BUFFER. Value -> label on which the instruction indexed
+# depends.
+BACKPATCH_DEP = {}
 
 
 ################################################################################
@@ -47,11 +61,23 @@ def parse_arguments():
 	return parser.parse_args()
 
 
+def add_instr(instr):
+	''' Print instruction to output file.
+
+		@param 	instr: 	Instruction to print.
+		@type 	instr:	String.
+		'''
+
+	global CT
+
+	INSTR_BUFFER.append(instr)
+	CT += 1
+
 def read_decls():
 	''' Read the program's declarations.
 		'''
 
-	global ST
+	global ST, CT
 
 	while True:
 		line = input_file.readline()
@@ -74,6 +100,8 @@ def read_decls():
 					address[args[2]] = ST
 					ST += size
 
+		add_instr(INSTR.format(10, 0, 0, size, 'PUSH ' + str(size)))
+
 
 def build_quadruples():
 	''' Build quadruples from the isntruction in the source code.
@@ -82,7 +110,7 @@ def build_quadruples():
 		@rtype 		quads:	List of Quadruple.
 		'''
 
-	global ST
+	global CT, ST
 
 	quads = []
 	for line in input_file: # Get all quadruples in source code
@@ -109,6 +137,8 @@ def build_quadruples():
 				if dst not in address: # Allocate memory for temporaries
 					address[dst] = ST
 					ST += MAX_SIZE
+					add_instr(INSTR.format(10, 0, 0, MAX_SIZE,
+						'PUSH ' + str(MAX_SIZE)))
 
 				# Get operator and operands
 				if line_args[1] == '[': # Array indexing l-value
@@ -162,26 +192,37 @@ def translate(quads):
 		@type 	quads:	List of Quadruple.
 		'''
 
-	CT = 0 # Code stack top
-	quads[0].address = 0
-
 	for quad in quads:
+		quad.address = CT
 		quad_type = quad.type
 
-		if quad_type == 1:
+		if quad_type == 1: # Conditional jump.
 			pass
-		elif quad_type == 2:
+		elif quad_type == 2: # Unconditional jump.
+			add_instr(INSTR.format(12, 0, 0, '{}', 'JUMP {}[CB]'))
+		elif quad_type == 3: # Array indexing l-value assignment.
 			pass
-		elif quad_type == 3:
+		elif quad_type == 4: # Array indexing r-value assignment.
 			pass
-		elif quad_type == 4:
+		elif quad_type == 5: # Simple variable copy assignments.
 			pass
-		elif quad_type == 5:
+		elif quad_type == 6: # Arithmetic assignment.
 			pass
-		elif quad_type == 6:
+		elif quad_type == 7: # Unary assignment.
 			pass
-		elif quad_type == 7:
-			pass
+
+	add_instr(INSTR.format(15, 0, 0, 0, 'HALT'))
+
+
+def finish():
+	''' Finishes translation. '''
+
+	input_file.close()
+
+	for instruction in INSTR_BUFFER:
+		output_file.write(instruction)
+
+	output_file.close()
 
 
 def main():
@@ -195,9 +236,9 @@ def main():
 
 	read_decls()
 	quads = build_quadruples()
+	translate(quads)
 
-	input_file.close()
-	output_file.close()
+	finish()
 
 
 ################################################################################

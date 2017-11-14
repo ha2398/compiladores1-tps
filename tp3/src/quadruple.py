@@ -23,6 +23,15 @@ class Quadruple():
 				6. Arithmetic assignment.
 				7. Unary assignment.
 
+			TAM instruction format:
+			op 	r 	n 	d 	: Fields
+			4	4	8	16 	: Sizes in bits
+
+				op:	Operation code.
+				r: 	Register.
+				n:	Operand size.
+				d: 	Address offset (might be negative).
+
 			@param 	dst:	Destination variable (in case of assignments).
 			@type	dst:	String.
 
