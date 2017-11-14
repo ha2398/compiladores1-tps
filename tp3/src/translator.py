@@ -42,11 +42,6 @@ INSTR = '{}\t{}\t{}\t{}\t; {}\n'
 # Instruction buffer
 INSTR_BUFFER = []
 
-# Backpatching dependency dictionary. Key -> Index of instruction on
-# INSTR_BUFFER. Value -> label on which the instruction indexed
-# depends.
-BACKPATCH_DEP = {}
-
 
 ################################################################################
 
@@ -64,16 +59,19 @@ def parse_arguments():
 	return parser.parse_args()
 
 
-def add_instr(instr):
+def add_instr(instr, quad):
 	''' Print instruction to output file.
 
 		@param 	instr: 	Instruction to print.
 		@type 	instr:	String.
+
+		@param 	quad:	Quadruple that generated the instruction.
+		@type 	quad: 	Quadruple.
 		'''
 
 	global CT
 
-	INSTR_BUFFER.append(instr)
+	INSTR_BUFFER.append((instr, quad))
 	CT += 1
 
 def read_decls():
@@ -105,8 +103,7 @@ def read_decls():
 					ST += size
 					types[args[2]] = args[1]
 
-		add_instr(INSTR.format(10, 0, 0, size, 'PUSH ' + str(size)))
-
+		add_instr(INSTR.format(10, 0, 0, size, 'PUSH ' + str(size)), None)
 
 
 def build_quadruples():
@@ -146,7 +143,7 @@ def build_quadruples():
 					types[dst] = 'float'
 
 					add_instr(INSTR.format(10, 0, 0, MAX_SIZE,
-						'PUSH ' + str(MAX_SIZE)))
+						'PUSH ' + str(MAX_SIZE)), None)
 
 				# Get operator and operands
 				if line_args[1] == '[': # Array indexing l-value
@@ -201,13 +198,14 @@ def translate(quads):
 		'''
 
 	for quad in quads:
-		quad.addresses = CT
+		quad.address = CT
 		quad_type = quad.type
 
 		if quad_type == 1: # Conditional jump.
 			pass
 		elif quad_type == 2: # Unconditional jump.
-			add_instr(INSTR.format(12, 0, 0, '{}', 'JUMP {}[CB]'))
+			index = len(INSTR_BUFFER)
+			add_instr(INSTR.format(12, 0, 0, '{}', 'JUMP {}[CB]'), quad)
 		elif quad_type == 3: # Array indexing l-value assignment.
 			pass
 		elif quad_type == 4: # Array indexing r-value assignment.
@@ -220,26 +218,44 @@ def translate(quads):
 				dst_size = TSIZES[types[quad.dst]]
 
 				add_instr(INSTR.format(1, 4, 0, addr_op1,
-					'LOADA ' + str(addr_op1) + '[SB]'))
+					'LOADA ' + str(addr_op1) + '[SB]'), quad)
 				add_instr(INSTR.format(2, 0, op1_size, 0,
-					'LOADI(' + str(op1_size) + ')'))
+					'LOADI(' + str(op1_size) + ')'), quad)
 
 				add_instr(INSTR.format(1, 4, 0, addr_dst,
-					'LOADA ' + str(addr_dst) + '[SB]'))
+					'LOADA ' + str(addr_dst) + '[SB]'), quad)
 				add_instr(INSTR.format(5, 0, dst_size, 0,
-					'STOREI(' + str(dst_size) + ')'))
+					'STOREI(' + str(dst_size) + ')'), quad)
 			else: # Operand is not variable
 				# Need to handle floating point literals.
 				literal = int(quad.op1)
+				addr_dst = addresses[quad.dst]
+				dst_size = TSIZES[types[quad.dst]]
 
 				add_instr(INSTR.format(3, 0, 0, literal,
-					'LOADL ' + str(literal)))
+					'LOADL ' + str(literal)), quad)
+				add_instr(INSTR.format(1, 4, 0, addr_dst,
+					'LOADA ' + str(addr_dst) + '[SB]'), quad)
+				add_instr(INSTR.format(5, 0, dst_size, 0,
+					'STOREI(' + str(dst_size) + ')'), quad)
 		elif quad_type == 6: # Arithmetic assignment.
 			pass
 		elif quad_type == 7: # Unary assignment.
 			pass
 
-	add_instr(INSTR.format(15, 0, 0, 0, 'HALT'))
+	add_instr(INSTR.format(15, 0, 0, 0, 'HALT'), None)
+
+
+def backpatching():
+	''' Perform backpatching to assign labels. '''
+
+	for i in range(len(INSTR_BUFFER)):
+		instruction = INSTR_BUFFER[i][0]
+		quadruple = INSTR_BUFFER[i][1]
+
+		if '{}' in instruction:
+			address = quadruple.address
+			INSTR_BUFFER[i] = (instruction.format(address, address), quadruple)
 
 
 def finish():
@@ -247,8 +263,8 @@ def finish():
 
 	input_file.close()
 
-	for instruction in INSTR_BUFFER:
-		output_file.write(instruction)
+	for (instr, quad) in INSTR_BUFFER:
+		output_file.write(instr)
 
 	output_file.close()
 
@@ -264,12 +280,8 @@ def main():
 
 	read_decls()
 	quads = build_quadruples()
-
-	for quad in quads:
-		print(quad)
-
 	translate(quads)
-
+	backpatching()
 	finish()
 
 
