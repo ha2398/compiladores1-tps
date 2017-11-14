@@ -8,6 +8,9 @@ translator.py: 3 address code -> TAM translator.
 '''
 
 
+# TODO: Need to handle floating point literals.
+
+
 import argparse as ap
 from quadruple import Quadruple
 
@@ -213,33 +216,77 @@ def translate(quads):
 		elif quad_type == 5: # Simple variable copy assignments.
 			if quad.op1 in addresses: # Operand is variable
 				addr_op1 = addresses[quad.op1]
-				addr_dst = addresses[quad.dst]
 				op1_size = TSIZES[types[quad.op1]]
-				dst_size = TSIZES[types[quad.dst]]
+				
+				add_instr(INSTR.format(1, 4, 0, addr_op1,
+					'LOADA ' + str(addr_op1) + '[SB]'), quad)
+				add_instr(INSTR.format(2, 0, op1_size, 0,
+					'LOADI(' + str(op1_size) + ')'), quad)
+			else: # Operand is not variable
+				literal = int(quad.op1)
+
+				add_instr(INSTR.format(3, 0, 0, literal,
+					'LOADL ' + str(literal)), quad)
+
+			addr_dst = addresses[quad.dst]
+			dst_size = TSIZES[types[quad.dst]]
+
+			add_instr(INSTR.format(1, 4, 0, addr_dst,
+				'LOADA ' + str(addr_dst) + '[SB]'), quad)
+			add_instr(INSTR.format(5, 0, dst_size, 0,
+				'STOREI(' + str(dst_size) + ')'), quad)
+		elif quad_type == 6: # Arithmetic assignment.
+			addr_dst = addresses[quad.dst]
+			dst_size = TSIZES[types[quad.dst]]
+
+			if quad.op1 in addresses: # Operand 1 is variable
+				addr_op1 = addresses[quad.op1]
+				op1_size = TSIZES[types[quad.op1]]
 
 				add_instr(INSTR.format(1, 4, 0, addr_op1,
 					'LOADA ' + str(addr_op1) + '[SB]'), quad)
 				add_instr(INSTR.format(2, 0, op1_size, 0,
 					'LOADI(' + str(op1_size) + ')'), quad)
-
-				add_instr(INSTR.format(1, 4, 0, addr_dst,
-					'LOADA ' + str(addr_dst) + '[SB]'), quad)
-				add_instr(INSTR.format(5, 0, dst_size, 0,
-					'STOREI(' + str(dst_size) + ')'), quad)
-			else: # Operand is not variable
-				# Need to handle floating point literals.
+			else: # Operand 1 is literal
 				literal = int(quad.op1)
-				addr_dst = addresses[quad.dst]
-				dst_size = TSIZES[types[quad.dst]]
 
 				add_instr(INSTR.format(3, 0, 0, literal,
 					'LOADL ' + str(literal)), quad)
-				add_instr(INSTR.format(1, 4, 0, addr_dst,
-					'LOADA ' + str(addr_dst) + '[SB]'), quad)
-				add_instr(INSTR.format(5, 0, dst_size, 0,
-					'STOREI(' + str(dst_size) + ')'), quad)
-		elif quad_type == 6: # Arithmetic assignment.
-			pass
+
+			if quad.op2 in addresses: # Operand 2 is variable
+				addr_op2 = addresses[quad.op2]
+				op2_size = TSIZES[types[quad.op2]]
+
+				add_instr(INSTR.format(1, 4, 0, addr_op2,
+					'LOADA ' + str(addr_op2) + '[SB]'), quad)
+				add_instr(INSTR.format(2, 0, op2_size, 0,
+					'LOADI(' + str(op2_size) + ')'), quad)
+			else: # Operand 2 is literal
+				literal = int(quad.op2)
+
+				add_instr(INSTR.format(3, 0, 0, literal,
+					'LOADL ' + str(literal)), quad)
+
+			# Perform operation
+			if quad.operator == '+':
+				mnemo = 'add'
+				d = 8
+			elif quad.operator == '-':
+				mnemo = 'sub'
+				d = 9
+			elif quad.operator == '*':
+				mnemo = 'mult'
+				d = 10
+			else:
+				mnemo = 'div'
+				d = 11
+
+			add_instr(INSTR.format(6, 2, 0, d, mnemo), quad)
+
+			add_instr(INSTR.format(1, 4, 0, addr_dst,
+				'LOADA ' + str(addr_dst) + '[SB]'), quad)
+			add_instr(INSTR.format(5, 0, dst_size, 0,
+				'STOREI(' + str(dst_size) + ')'), quad)
 		elif quad_type == 7: # Unary assignment.
 			pass
 
