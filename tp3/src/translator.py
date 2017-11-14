@@ -14,6 +14,9 @@ from quadruple import Quadruple
 
 # Global variables.
 
+input_file = None
+output_file = None
+
 # Sizes (in 2B words) of the grammar types.
 TSIZES = {'int': 2, 'float': 4, 'char': 1, 'bool': 1}
 MAX_SIZE = TSIZES['float']
@@ -40,14 +43,12 @@ def parse_arguments():
 
 	parser = ap.ArgumentParser()
 	parser.add_argument('INPUT_FILE', type=str, help='Name of input file')
+	parser.add_argument('OUTPUT_FILE', type=str, help='Name of output file')
 	return parser.parse_args()
 
 
-def read_decls(input_file):
+def read_decls():
 	''' Read the program's declarations.
-
-		@param 	input_file: File to read code from.
-		@type 	input_file:	_io.TextIOWrapper
 		'''
 
 	global ST
@@ -74,15 +75,17 @@ def read_decls(input_file):
 					ST += size
 
 
-def main():
+def build_quadruples():
+	''' Build quadruples from the isntruction in the source code.
+
+		@return 	quads: 	Quadruples built.
+		@rtype 		quads:	List of Quadruple.
+		'''
+
 	global ST
 
-	args = parse_arguments()
-	file = open(args.INPUT_FILE, 'r')
-	read_decls(file)
-
 	quads = []
-	for line in file: # Get all quadruples in source code
+	for line in input_file: # Get all quadruples in source code
 		newQuad = None
 		line_args = line.split()
 
@@ -140,7 +143,61 @@ def main():
 		for label in L: # Each label points to their proper quadruple
 			labels[label] = newQuad
 
-	file.close()
+	return quads
+
+
+def translate(quads):
+	''' Translate quadruples to TAM code.
+
+		Types of quadruples:
+			1. Conditional jump.
+			2. Unconditional jump.
+			3. Array indexing l-value assignment.
+			4. Array indexing r-value assignment.
+			5. Simple variable copy assignments.
+			6. Arithmetic assignment.
+			7. Unary assignment.
+		
+		@param 	quads:	Quadruples to translate.
+		@type 	quads:	List of Quadruple.
+		'''
+
+	CT = 0 # Code stack top
+	quads[0].address = 0
+
+	for quad in quads:
+		quad_type = quad.type
+
+		if quad_type == 1:
+			pass
+		elif quad_type == 2:
+			pass
+		elif quad_type == 3:
+			pass
+		elif quad_type == 4:
+			pass
+		elif quad_type == 5:
+			pass
+		elif quad_type == 6:
+			pass
+		elif quad_type == 7:
+			pass
+
+
+def main():
+
+	global input_file, output_file
+
+	args = parse_arguments()
+
+	input_file = open(args.INPUT_FILE, 'r')
+	output_file = open(args.OUTPUT_FILE, 'w')
+
+	read_decls()
+	quads = build_quadruples()
+
+	input_file.close()
+	output_file.close()
 
 
 ################################################################################
