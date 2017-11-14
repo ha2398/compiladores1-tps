@@ -28,7 +28,10 @@ ST = 0
 CT = 0
 
 # Address, on the stack, of the variables.
-address = {}
+addresses = {}
+
+# Types of the variables.
+types = {}
 
 # Dictionary which returns the Quadruple by label.
 labels = {}
@@ -90,17 +93,20 @@ def read_decls():
 			args = line.split()
 
 			if len(args) < 3: # Simple variable
-				if args[1] not in address:
+				if args[1] not in addresses:
 					size = TSIZES[args[0]]
-					address[args[1]] = ST
+					addresses[args[1]] = ST
 					ST += size
+					types[args[1]] = args[0]
 			else: # Array
-				if args[2] not in address:
+				if args[2] not in addresses:
 					size = TSIZES[args[1]] * int(args[0])
-					address[args[2]] = ST
+					addresses[args[2]] = ST
 					ST += size
+					types[args[2]] = args[1]
 
 		add_instr(INSTR.format(10, 0, 0, size, 'PUSH ' + str(size)))
+
 
 
 def build_quadruples():
@@ -134,9 +140,11 @@ def build_quadruples():
 			else: # Operation
 				dst = line_args[0]
 
-				if dst not in address: # Allocate memory for temporaries
-					address[dst] = ST
+				if dst not in addresses: # Allocate memory for temporaries
+					addresses[dst] = ST
 					ST += MAX_SIZE
+					types[dst] = 'float'
+
 					add_instr(INSTR.format(10, 0, 0, MAX_SIZE,
 						'PUSH ' + str(MAX_SIZE)))
 
@@ -193,7 +201,7 @@ def translate(quads):
 		'''
 
 	for quad in quads:
-		quad.address = CT
+		quad.addresses = CT
 		quad_type = quad.type
 
 		if quad_type == 1: # Conditional jump.
@@ -205,7 +213,27 @@ def translate(quads):
 		elif quad_type == 4: # Array indexing r-value assignment.
 			pass
 		elif quad_type == 5: # Simple variable copy assignments.
-			pass
+			if quad.op1 in addresses: # Operand is variable
+				addr_op1 = addresses[quad.op1]
+				addr_dst = addresses[quad.dst]
+				op1_size = TSIZES[types[quad.op1]]
+				dst_size = TSIZES[types[quad.dst]]
+
+				add_instr(INSTR.format(1, 4, 0, addr_op1,
+					'LOADA ' + str(addr_op1) + '[SB]'))
+				add_instr(INSTR.format(2, 0, op1_size, 0,
+					'LOADI(' + str(op1_size) + ')'))
+
+				add_instr(INSTR.format(1, 4, 0, addr_dst,
+					'LOADA ' + str(addr_dst) + '[SB]'))
+				add_instr(INSTR.format(5, 0, dst_size, 0,
+					'STOREI(' + str(dst_size) + ')'))
+			else: # Operand is not variable
+				# Need to handle floating point literals.
+				literal = int(quad.op1)
+
+				add_instr(INSTR.format(3, 0, 0, literal,
+					'LOADL ' + str(literal)))
 		elif quad_type == 6: # Arithmetic assignment.
 			pass
 		elif quad_type == 7: # Unary assignment.
@@ -236,6 +264,10 @@ def main():
 
 	read_decls()
 	quads = build_quadruples()
+
+	for quad in quads:
+		print(quad)
+
 	translate(quads)
 
 	finish()

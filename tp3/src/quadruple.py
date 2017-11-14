@@ -89,7 +89,7 @@ class Quadruple():
 		string = ''
 
 		if self.type:
-			string += 'Type: ' + str(self.type) + ' '
+			string += 'Type: ' + str(self.type) + ': '
 
 		if self.dst:
 			string += str(self.dst) + ' '
