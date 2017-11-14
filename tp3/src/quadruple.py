@@ -38,5 +38,20 @@ class Quadruple():
 	def __str__(self):
 		''' Return a string representation of the Quadruple. '''
 
-		return 	self.operator + ', ' + self.dst + ', ' + self.op1 + ', ' + \
-				self.op2 + ', ' + str(self.branch)
+		string = ''
+		if self.dst:
+			string += str(self.dst) + ' '
+
+		if self.op1:
+			string += str(self.op1) + ' '
+
+		if self.operator:
+			string += str(self.operator) + ' '
+
+		if self.op2:
+			string += str(self.op2) + ' '
+
+		if self.branch:
+			string += str(self.branch)
+
+		return string

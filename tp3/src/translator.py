@@ -83,6 +83,7 @@ def main():
 
 	quads = []
 	for line in file: # Get all quadruples in source code
+		newQuad = None
 		line_args = line.split()
 
 		L = []
@@ -91,8 +92,14 @@ def main():
 			del line_args[0]
 
 		if len(line_args) != 0: # Non empty quadruples
-			if 'if' in line_args[0] or 'goto' in line_args[0]: # Branch or Cond
-				continue
+			if 'if' in line_args[0]: # Conditional
+				op = line_args[0]
+				cond = line_args[1:4]
+				branch = int(line_args[-1][1:])
+				newQuad = Quadruple(None, cond, None, op, branch)
+			elif 'goto' == line_args[0]: # Unconditional jump
+				branch = int(line_args[1][1:])
+				newQuad = Quadruple(None, None, None, line_args[0], branch)
 			else: # Operation
 				dst = line_args[0]
 
@@ -105,18 +112,30 @@ def main():
 					op = '[]='
 					op1 = line_args[2]
 					op2 = line_args[5]
+
+					newQuad = Quadruple(dst, op1, op2, op)
 				else:
-					op = line_args[3]
+					if len(line_args) == 3: # Simple copy assignments
+						op1 = line_args[2]
+						newQuad = Quadruple(dst, op1, None, None)
+					elif len(line_args) == 5: # Arithmetic
+						op = line_args[3]
+						op1 = line_args[2]
+						op2 = line_args[4]
 
-					if op == '[':
+						newQuad = Quadruple(dst, op1, op2, op)
+					elif len(line_args) == 6: # Array indexing r-value
 						op = '=[]'
+						op1 = line_args[2]
+						newQuad = Quadruple(dst, op1, None, op)
+					else: # Unary
+						op = line_args[2]
+						op2 = line_args[3]
 
-					op1 = line_args[2]
-					op2 = line_args[4]
+						newQuad = Quadruple(dst, None, op2, op)
 
-
-				newQuad = Quadruple(dst, op1, op2, op)
-				quads.append(newQuad)
+		if newQuad:
+			quads.append(newQuad)
 
 		for label in L: # Each label points to their proper quadruple
 			labels[label] = newQuad
