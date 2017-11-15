@@ -13,6 +13,12 @@ L7:	if a goto L10
 	iffalse c goto L8
 	iffalse d goto L8
 L10:L9:	b = b + 1
-L8:	iffalse b < 90 goto L2
+L8:	iffalse b == 90 goto L2
+	iffalse b >= 0 goto L2
 L11:	d = false
+L12:	if c goto L13
+	t1 = true
+	goto L14
+L13:	t1 = false
+L14:	c = t1
 L2:

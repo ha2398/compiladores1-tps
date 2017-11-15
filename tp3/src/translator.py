@@ -232,9 +232,100 @@ def translate(quads):
 		quad_type = quad.type
 
 		if quad_type == 1: # Conditional jump.
-			pass
+			# Push the condition bool value to stack.
+
+			cond = quad.op1
+			if len(cond) == 3: # Relational operation
+				if cond[0] in addresses: # Operand is variable
+					addr_op1 = addresses[cond[0]]
+					op1_size = TSIZES[types[cond[0]]]
+					
+					add_instr(INSTR.format(1, 4, 0, addr_op1,
+						'LOADA ' + str(addr_op1) + '[SB]'), quad)
+					add_instr(INSTR.format(2, 0, op1_size, 0,
+						'LOADI(' + str(op1_size) + ')'), quad)
+				else: # Operand is not variable
+					if cond[0] == 'true' or cond[0] == 'false':
+						literal = int(str2bool(cond[0]))
+					else:
+						literal = int(floor(float(cond[0])))
+
+					add_instr(INSTR.format(3, 0, 0, literal,
+						'LOADL ' + str(literal)), quad)
+
+				if cond[2] in addresses: # Operand is variable
+					addr_op1 = addresses[cond[2]]
+					op1_size = TSIZES[types[cond[2]]]
+					
+					add_instr(INSTR.format(1, 4, 0, addr_op1,
+						'LOADA ' + str(addr_op1) + '[SB]'), quad)
+					add_instr(INSTR.format(2, 0, op1_size, 0,
+						'LOADI(' + str(op1_size) + ')'), quad)
+				else: # Operand is not variable
+					if cond[2] == 'true' or cond[2] == 'false':
+						literal = int(str2bool(cond[2]))
+					else:
+						literal = int(floor(float(cond[2])))
+
+					add_instr(INSTR.format(3, 0, 0, literal,
+						'LOADL ' + str(literal)), quad)
+
+				# Perform comparison
+				relop = cond[1]
+				if relop == '<':
+					mnemo = 'lt'
+					d = 13
+					add_instr(INSTR.format(6, 2, 0, d, mnemo), quad)
+				elif relop == '<=':
+					mnemo = 'le'
+					d = 14
+					add_instr(INSTR.format(6, 2, 0, d, mnemo), quad)
+				elif relop == '>=':
+					mnemo = 'ge'
+					d = 15
+					add_instr(INSTR.format(6, 2, 0, d, mnemo), quad)
+				elif relop == '>':
+					mnemo = 'gt'
+					d = 16
+					add_instr(INSTR.format(6, 2, 0, d, mnemo), quad)
+				else:
+					# Push operators size.
+					op_size = TSIZES[types[cond[0]]]
+					add_instr(INSTR.format(3, 0, 0, op_size,
+						'LOADL ' + str(op_size)), quad)
+
+					if relop == '==':
+						mnemo = 'eq'
+						d = 17
+						add_instr(INSTR.format(6, 2, 0, d, mnemo), quad)
+					else: # !=
+						mnemo = 'ne'
+						d = 18
+						add_instr(INSTR.format(6, 2, 0, d, mnemo), quad)
+
+			else: # Simple boolean
+				if cond[0] in addresses: # Operand is variable
+					addr_op1 = addresses[cond[0]]
+					op1_size = TSIZES[types[cond[0]]]
+					
+					add_instr(INSTR.format(1, 4, 0, addr_op1,
+						'LOADA ' + str(addr_op1) + '[SB]'), quad)
+					add_instr(INSTR.format(2, 0, op1_size, 0,
+						'LOADI(' + str(op1_size) + ')'), quad)
+				else: # Operand is not variable
+					if cond[0] == 'true' or cond[0] == 'false':
+						literal = int(str2bool(cond[0]))
+					else:
+						literal = int(floor(float(cond[0])))
+
+					add_instr(INSTR.format(3, 0, 0, literal,
+						'LOADL ' + str(literal)), quad)
+
+			# Jump to label according to result
+			n = 1 if quad.operator == 'if' else 0
+			add_instr(INSTR.format(14, 0, n, '{}',
+				'JUMPIF(' + str(n) + ') {}[CB]'), quad)
 		elif quad_type == 2: # Unconditional jump.
-			index = len(INSTR_BUFFER)
 			add_instr(INSTR.format(12, 0, 0, '{}', 'JUMP {}[CB]'), quad)
 		elif quad_type == 3: # Array indexing l-value assignment.
 			if quad.op2 in addresses: # Operand 2 is variable
