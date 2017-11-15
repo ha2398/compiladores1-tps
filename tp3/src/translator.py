@@ -84,8 +84,11 @@ def read_decls():
 
 	global ST, CT
 
+	print('-------------------BEGIN INPUT-------------------')
+
 	while True:
 		line = input_file.readline()
+		print(line.strip('\n'))
 
 		if len(line) <= 2:
 			break
@@ -121,6 +124,7 @@ def build_quadruples():
 
 	quads = []
 	for line in input_file: # Get all quadruples in source code
+		print(line.strip('\n'))
 		newQuad = None
 		line_args = line.split()
 
@@ -181,6 +185,8 @@ def build_quadruples():
 
 		for label in L: # Each label points to their proper quadruple
 			labels[label] = newQuad
+
+	print('--------------------END INPUT--------------------')
 
 	return quads
 
