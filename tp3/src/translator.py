@@ -173,7 +173,8 @@ def build_quadruples():
 					elif len(line_args) == 6: # Array indexing r-value
 						op = '=[]'
 						op1 = line_args[2]
-						newQuad = Quadruple(dst, op1, None, op)
+						op2 = line_args[4]
+						newQuad = Quadruple(dst, op1, op2, op)
 					else: # Unary
 						op = line_args[2]
 						op2 = line_args[3]
@@ -267,7 +268,50 @@ def translate(quads):
 				'STOREI(' + str(dst_size) + ')'), quad)
 
 		elif quad_type == 4: # Array indexing r-value assignment.
-			pass
+			# Get array element address with offset.
+			# 1. Push offset to stack
+
+			if quad.op2 in addresses: # Operand is variable
+				addr_op2 = addresses[quad.op2]
+				op2_size = TSIZES[types[quad.op2]]
+				
+				add_instr(INSTR.format(1, 4, 0, addr_op2,
+					'LOADA ' + str(addr_op2) + '[SB]'), quad)
+				add_instr(INSTR.format(2, 0, op1_size, 0,
+					'LOADI(' + str(op2_size) + ')'), quad)
+			else: # Operand is not variable
+				literal = int(floor(float(quad.op2)))
+
+				add_instr(INSTR.format(3, 0, 0, literal,
+					'LOADL ' + str(literal)), quad)
+
+			# 2. Push base address to stack
+
+			addr_base = addresses[quad.op1]
+			add_instr(INSTR.format(1, 4, 0, addr_base,
+				'LOADA ' + str(addr_base) + '[SB]'), quad)
+
+			# 3. Add them up.
+
+			mnemo = 'add'
+			d = 8
+			add_instr(INSTR.format(6, 2, 0, d, mnemo), quad)
+
+			# 4. Get r-value
+
+			op_size = TSIZES[types[quad.op1]]
+			add_instr(INSTR.format(2, 0, op_size, 0,
+				'LOADI(' + str(op_size) + ')'), quad)
+
+			# Push destination address onto stack and store r-value there.
+			addr_dst = addresses[quad.dst]
+			dst_size = TSIZES[types[quad.dst]]
+
+			add_instr(INSTR.format(1, 4, 0, addr_dst,
+				'LOADA ' + str(addr_dst) + '[SB]'), quad)
+			add_instr(INSTR.format(5, 0, dst_size, 0,
+				'STOREI(' + str(dst_size) + ')'), quad)
+
 		elif quad_type == 5: # Simple variable copy assignments.
 			if quad.op1 in addresses: # Operand is variable
 				addr_op1 = addresses[quad.op1]
