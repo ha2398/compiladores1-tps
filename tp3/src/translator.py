@@ -13,6 +13,7 @@ translator.py: 3 address code -> TAM translator.
 
 import argparse as ap
 from quadruple import Quadruple
+from math import floor
 
 
 # Global variables.
@@ -248,7 +249,7 @@ def translate(quads):
 				add_instr(INSTR.format(2, 0, op1_size, 0,
 					'LOADI(' + str(op1_size) + ')'), quad)
 			else: # Operand 1 is literal
-				literal = int(quad.op1)
+				literal = int(floor(float(quad.op1)))
 
 				add_instr(INSTR.format(3, 0, 0, literal,
 					'LOADL ' + str(literal)), quad)
@@ -262,7 +263,7 @@ def translate(quads):
 				add_instr(INSTR.format(2, 0, op2_size, 0,
 					'LOADI(' + str(op2_size) + ')'), quad)
 			else: # Operand 2 is literal
-				literal = int(quad.op2)
+				literal = int(floor(float(quad.op2)))
 
 				add_instr(INSTR.format(3, 0, 0, literal,
 					'LOADL ' + str(literal)), quad)
@@ -288,7 +289,35 @@ def translate(quads):
 			add_instr(INSTR.format(5, 0, dst_size, 0,
 				'STOREI(' + str(dst_size) + ')'), quad)
 		elif quad_type == 7: # Unary assignment.
-			pass
+			addr_dst = addresses[quad.dst]
+			dst_size = TSIZES[types[quad.dst]]
+
+			add_instr(INSTR.format(3, 0, 0, 0,
+				'LOADL 0'), quad)
+
+			if quad.op2 in addresses: # Operand 2 is variable
+				addr_op2 = addresses[quad.op2]
+				op2_size = TSIZES[types[quad.op2]]
+
+				add_instr(INSTR.format(1, 4, 0, addr_op2,
+					'LOADA ' + str(addr_op2) + '[SB]'), quad)
+				add_instr(INSTR.format(2, 0, op2_size, 0,
+					'LOADI(' + str(op2_size) + ')'), quad)
+			else: # Operand 2 is literal
+				literal = int(floor(float(quad.op2)))
+
+				add_instr(INSTR.format(3, 0, 0, literal,
+					'LOADL ' + str(literal)), quad)
+
+			# Perform operation
+			d = 9
+			mnemo = 'sub'
+
+			add_instr(INSTR.format(6, 2, 0, d, mnemo), quad)
+			add_instr(INSTR.format(1, 4, 0, addr_dst,
+				'LOADA ' + str(addr_dst) + '[SB]'), quad)
+			add_instr(INSTR.format(5, 0, dst_size, 0,
+				'STOREI(' + str(dst_size) + ')'), quad)
 
 	add_instr(INSTR.format(15, 0, 0, 0, 'HALT'), None)
 
@@ -301,8 +330,16 @@ def backpatching():
 		quadruple = INSTR_BUFFER[i][1]
 
 		if '{}' in instruction:
-			address = quadruple.address
-			INSTR_BUFFER[i] = (instruction.format(address, address), quadruple)
+			branch_label = quadruple.branch
+			branch_quadruple = labels[branch_label]
+
+			if branch_quadruple == None:
+				branch_address = CT
+			else:
+				branch_address = branch_quadruple.address
+
+			INSTR_BUFFER[i] = \
+				(instruction.format(branch_address, branch_address), quadruple)
 
 
 def finish():
