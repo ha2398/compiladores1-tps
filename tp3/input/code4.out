@@ -1,0 +1,18 @@
+	bool a
+	bool c
+	bool d
+	int b
+	char e
+	
+L1:	a = true
+L3:	b = 2
+L4:	c = false
+L5:	d = true
+L6:	e = 90
+L7:	if a goto L10
+	iffalse c goto L8
+	iffalse d goto L8
+L10:L9:	b = b + 1
+L8:	iffalse b < 90 goto L2
+L11:	d = false
+L2:

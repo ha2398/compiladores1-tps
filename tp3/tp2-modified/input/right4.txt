@@ -1,0 +1,21 @@
+{
+    bool a;
+    bool c;
+    bool d;
+    int b;
+    char e;
+
+    a = true;
+    b = 2;
+    c = false;
+    d = true;
+    e = 90;
+
+    if ( a || (c && d)) {
+        b = b + 1;
+    }
+
+    if (b < 90) {
+        d = false;
+    }
+}

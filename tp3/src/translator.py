@@ -9,6 +9,7 @@ translator.py: 3 address code -> TAM translator.
 
 
 # TODO: Need to handle floating point literals.
+#	TAM does not provide arithmetic routines for floating point!?
 
 
 import argparse as ap
@@ -48,6 +49,19 @@ INSTR_BUFFER = []
 
 
 ################################################################################
+
+
+def str2bool(string):
+	''' Converts a string to bool.
+		
+		@param 	string:	String to be converted.
+		@type 	string: String.
+
+		@return: 	Boolean that represents the string.
+		@rtype:		Bool.
+		'''
+
+	return string.lower() == 'true'
 
 
 def parse_arguments():
@@ -136,7 +150,12 @@ def build_quadruples():
 		if len(line_args) != 0: # Non empty quadruples
 			if 'if' in line_args[0]: # Conditional
 				op = line_args[0]
-				cond = line_args[1:4]
+
+				if len(line_args) == 6:
+					cond = line_args[1:4]
+				else:
+					cond = line_args[1:2]
+
 				branch = int(line_args[-1][1:])
 				newQuad = Quadruple(None, cond, None, op, branch)
 			elif 'goto' == line_args[0]: # Unconditional jump
@@ -227,7 +246,10 @@ def translate(quads):
 				add_instr(INSTR.format(2, 0, op2_size, 0,
 					'LOADI(' + str(op2_size) + ')'), quad)
 			else: # Operand 2 is literal
-				literal = int(floor(float(quad.op2)))
+				if quad.op2 == 'true' or quad.op2 == 'false':
+					literal = int(str2bool(quad.op2))
+				else:
+					literal = int(floor(float(quad.op2)))
 
 				add_instr(INSTR.format(3, 0, 0, literal,
 					'LOADL ' + str(literal)), quad)
@@ -244,7 +266,10 @@ def translate(quads):
 				add_instr(INSTR.format(2, 0, op1_size, 0,
 					'LOADI(' + str(op1_size) + ')'), quad)
 			else: # Operand is not variable
-				literal = int(floor(float(quad.op1)))
+				if quad.op1 == 'true' or quad.op1 == 'false':
+					literal = int(str2bool(quad.op1))
+				else:
+					literal = int(floor(float(quad.op1)))
 
 				add_instr(INSTR.format(3, 0, 0, literal,
 					'LOADL ' + str(literal)), quad)
@@ -280,7 +305,10 @@ def translate(quads):
 				add_instr(INSTR.format(2, 0, op1_size, 0,
 					'LOADI(' + str(op2_size) + ')'), quad)
 			else: # Operand is not variable
-				literal = int(floor(float(quad.op2)))
+				if quad.op2 == 'true' or quad.op2 == 'false':
+					literal = int(str2bool(quad.op2))
+				else:
+					literal = int(floor(float(quad.op2)))
 
 				add_instr(INSTR.format(3, 0, 0, literal,
 					'LOADL ' + str(literal)), quad)
@@ -322,7 +350,10 @@ def translate(quads):
 				add_instr(INSTR.format(2, 0, op1_size, 0,
 					'LOADI(' + str(op1_size) + ')'), quad)
 			else: # Operand is not variable
-				literal = int(floor(float(quad.op1)))
+				if quad.op1 == 'true' or quad.op1 == 'false':
+					literal = int(str2bool(quad.op1))
+				else:
+					literal = int(floor(float(quad.op1)))
 
 				add_instr(INSTR.format(3, 0, 0, literal,
 					'LOADL ' + str(literal)), quad)
@@ -347,7 +378,10 @@ def translate(quads):
 				add_instr(INSTR.format(2, 0, op1_size, 0,
 					'LOADI(' + str(op1_size) + ')'), quad)
 			else: # Operand 1 is literal
-				literal = int(floor(float(quad.op1)))
+				if quad.op1 == 'true' or quad.op1 == 'false':
+					literal = int(str2bool(quad.op1))
+				else:
+					literal = int(floor(float(quad.op1)))
 
 				add_instr(INSTR.format(3, 0, 0, literal,
 					'LOADL ' + str(literal)), quad)
@@ -361,7 +395,10 @@ def translate(quads):
 				add_instr(INSTR.format(2, 0, op2_size, 0,
 					'LOADI(' + str(op2_size) + ')'), quad)
 			else: # Operand 2 is literal
-				literal = int(floor(float(quad.op2)))
+				if quad.op2 == 'true' or quad.op2 == 'false':
+					literal = int(str2bool(quad.op2))
+				else:
+					literal = int(floor(float(quad.op2)))
 
 				add_instr(INSTR.format(3, 0, 0, literal,
 					'LOADL ' + str(literal)), quad)
@@ -402,7 +439,10 @@ def translate(quads):
 				add_instr(INSTR.format(2, 0, op2_size, 0,
 					'LOADI(' + str(op2_size) + ')'), quad)
 			else: # Operand 2 is literal
-				literal = int(floor(float(quad.op2)))
+				if quad.op2 == 'true' or quad.op2 == 'false':
+					literal = int(str2bool(quad.op2))
+				else:
+					literal = int(floor(float(quad.op2)))
 
 				add_instr(INSTR.format(3, 0, 0, literal,
 					'LOADL ' + str(literal)), quad)
