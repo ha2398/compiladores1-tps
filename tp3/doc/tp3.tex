@@ -1,0 +1,190 @@
+\documentclass[12pt]{article}
+
+\usepackage{sbc-template}
+
+\usepackage{graphicx,url}
+
+\usepackage[brazil]{babel}   
+%\usepackage[latin1]{inputenc}  
+\usepackage[utf8]{inputenc}  
+% UTF-8 encoding is recommended by ShareLaTex
+
+\usepackage{mdframed}
+\usepackage{minted}
+
+\usepackage{amssymb}
+     
+\sloppy
+
+\title{Trabalho Prático 3 - Tradução de código intermediário do front-end de SmallL para TAM}
+
+\author{Hugo Araujo de Sousa\\(2013007463)}
+
+\address{
+  Compiladores I (2017/2) \\
+  Departamento de Ciência da Computação \\
+  Universidade Federal de Minas Gerais (UFMG)
+  \email{hugosousa@dcc.ufmg.br}
+}
+
+\begin{document} 
+
+\maketitle
+     
+\begin{resumo}
+  Este trabalho tem como objetivo o desenvolvimento de um tradutor da representação
+  intermediária da linguagem SmallL, como definido no Trabalho Prático II da disciplina
+  Compiladores I, para a máquina virtual TAM.
+\end{resumo}
+
+\section{INTRODUÇÃO}
+
+No Trabalho Prático II (TPII), foi desenvolvido um front-end completo para a linguagem SmallL. Dessa forma, todas as fases
+de análise léxica, sintática, semântica e geração de código intermediário foram completadas. O próximo passo, então,
+no processo de compilação de um programa escrito em SmallL é o de tradução do código intermediário gerado pelo front-end
+criado no TPII para alguma máquina alvo.
+
+Como a etapa de tradução é dependente da máquina alvo, o primeiro passo é determinar para qual máquina o programa em
+representação intermediária deverá ser traduzido. Para esse trabalho, a máquina escolhida foi a máquina virtual TAM. Para
+informações sobre a máquina TAM, seu conjunto de instruções e registradores, ver \cite{Watt:2007:PLP:1557477}.
+
+\section{METODOLOGIA} \label{sec:met}
+
+A primeira etapa no desenvolvimento do trabalho foi a de realizar uma pequena alteração do código do TPII, uma vez que o
+código intermediário gerado por esse não possui qualquer anotação sobre os tipos das variáveis. Sem essa informação,
+não é possível alocar espaço em memória para cada variável.
+
+Logo, o TPII modificado imprime no cabeçalho do código intermediário gerado anotações de tipo das variáveis e o tradutor
+realiza a alocação de memória para as mesmas.
+
+Em seguida, foi necessário identificar todos os tipos de quádruplas presentes no
+código intermediário. Esses tipos são apresentados a seguir:
+
+\begin{enumerate}
+ \item \textbf{Saltos condicionais:} Desvios de código baseados em uma condição booleana. São representados por
+ instruções "if" e "iffalse".
+ 
+ \item \textbf{Saltos incondicionais:} Desvios de código independentes de qualquer condição booleana. São representados
+ por instruções do tipo "goto".
+ 
+ \item \textbf{Indexação de array como l-value:} Uma variável ou valor é copiado para um elemento de array.
+ 
+ \item \textbf{Indexação de array como r-value:} Um elemento de array é copiado para uma variável.
+ 
+ \item \textbf{Atribuição simples:} Valor número ou de uma variável é atribuído a outra variável.
+ 
+ \item \textbf{Atribuição aritmética:} Resultado de uma expressão aritmética é atribuída a uma variável.
+ 
+ \item \textbf{Atribuição unária:} Resultado de uma operação unária é atribuída a uma variável.
+\end{enumerate}
+
+Com posse desses tipos, o processo de tradução se reduz a identificar quais são as instruções TAM necessárias 
+para executar cada uma das quádruplas presentes no código intermediário. A metodologia usada usou como referência
+\cite{Aho:86}.
+
+De maneira geral, a estrutura do algoritmo é a de ler todas as quádruplas, efetuar a tradução de cada uma e, por fim, 
+efetuar o processo de Backpatching para obter os endereços das labels de desvio ainda não definidas.
+
+\section{CÓDIGO FONTE}
+
+O código fonte pode ser encontrado na pasta \textbf{src} no diretório do projeto no
+GitHub\footnote{https://github.com/ha2398/compiladores1-tps/tree/master/tp3}. A pasta \textbf{tp2-modified} contém
+o código fonte da versão modificada do TPII, como dito na Seção \ref{sec:met}.
+
+O tradutor foi implementado utilizando a linguagem Python 3 e o código foi separado em dois arquivos:
+
+\begin{enumerate}
+ \item \textbf{quadruple.py:} Define a classe \textbf{Quadruple} que representa uma quádrupla.
+ 
+ \item \textbf{translator.py:} Implementa o tradutor propriamente dito.
+\end{enumerate}
+
+\section{EXECUÇÃO}
+
+Para executar o tradutor, primeiramente é necessário fornecer como entrada um arquivo em código intermediário de SmallL
+gerado através da versão modificada do TPII. Da raiz do diretório do projeto, fazemos:
+
+\begin{center}
+  cd tp2-modified/src \\
+  make \\
+  java main.Main $<$ arquivo\_entrada
+\end{center}
+
+Onde \textbf{arquivo\_entrada} é o arquivo em SmallL para o qual deseja-se gerar código intermediário. Após a execução dos 
+comandos, será gerado um arquivo \textbf{code.out} contendo as quádruplas correspondentes ao código de entrada.
+
+Com o código intermediário em mãos, podemos executar o tradutor. Para isso, da raiz do diretório do projeto, fazemos:
+
+\begin{center}
+ cd src \\
+ ./translator.py arquivo\_entrada arquivo\_saida
+\end{center}
+
+Onde \textbf{arquivo\_entrada} é o arquivo em código intermediário gerado no passo anterior e \textbf{arquivo\_saida}
+é o arquivo onde o resultado da tradução, isto é, o código TAM correspondente ao código intermediário de entrada
+deve ser salvo. O tradutor também lista o arquivo de entrada na saída padrão.
+
+\section{TESTES E RESULTADOS}
+
+Para ilustrar o funcionamento do tradutor, são apresentados dois exemplos de tradução, onde são mostrados primeiramente
+o código intermediário de entrada e o código TAM de saída.
+
+\subsection{code1.out}
+
+\begin{itemize}
+ \item Código intermediário:\\
+ 
+  \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../input/code1.out}
+  \end{mdframed}
+  
+  \mbox{}
+ 
+ \item Código TAM: \\
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../output/code1.tam}
+  \end{mdframed}
+\end{itemize}
+
+\subsection{code3.out}
+
+\begin{itemize}
+ \item Código intermediário: \\
+ 
+  \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../input/code3.out}
+  \end{mdframed}
+ 
+ \mbox{}
+ 
+ \item Código TAM: \\
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../output/code3.tam}
+  \end{mdframed}
+\end{itemize}
+
+
+\section{CONCLUSÃO}
+
+O trabalho em questão faz paralelo com um trabalho realizado para a disciplina Software Básico, onde um tradutor
+também deveria ser implementado. Dessa forma, uma certa familiaridade com o tema já existia. Entretanto, para esse
+trabalho, o tópico foi mais aprofundado, levantando muitas questões que antes não foram abordadas, como organização
+de memória, verificação de tipos, etc.
+
+É importante ressaltar que a maior dificuldade foi a de estudar a fundo a máquina alvo TAM. Não havia nenhum conhecimento
+sobre a mesma e há pouca documentação online.
+
+Alguns pontos levantaram muita dúvida durante a implementação, por exemplo, no manual da máquina vemos que não somente 
+há suporte para operações aritméticas com valores inteiros, o que é uma grande falha na especificação, uma vez que a SmallL
+permite o uso de variáveis de ponto flutuante. 
+
+De maneira geral, o trabalho pode ser concluído com sucesso e os testes se mostraram correspondentes ao que era desejado.
+
+\section{REFERÊNCIAS}
+
+\bibliographystyle{sbc}
+\bibliography{sbc-template}
+
+\end{document}
