@@ -1,0 +1,143 @@
+\documentclass[12pt]{article}
+
+\usepackage{sbc-template}
+
+\usepackage{graphicx,url}
+
+\usepackage[brazil]{babel}   
+%\usepackage[latin1]{inputenc}  
+\usepackage[utf8]{inputenc}  
+% UTF-8 encoding is recommended by ShareLaTex
+
+\usepackage{mdframed}
+\usepackage{minted}
+
+\usepackage{amssymb}
+     
+\sloppy
+
+\title{Trabalho Prático 4 - Compilador Integrado SmallL para TAM}
+
+\author{Hugo Araujo de Sousa\\(2013007463)}
+
+\address{
+  Compiladores I (2017/2) \\
+  Departamento de Ciência da Computação \\
+  Universidade Federal de Minas Gerais (UFMG)
+  \email{hugosousa@dcc.ufmg.br}
+}
+
+\begin{document} 
+
+\maketitle
+     
+\begin{resumo}
+  Nesse trabalho é desenvolvido um compilador integrado completo para a linguagem SmallL,
+  tendo a máquina TAM como alvo.
+\end{resumo}
+
+\section{INTRODUÇÃO}
+
+Através dos Trabalhos Práticos II e III (TPII e TPIII) da disciplina Compiladores I foi possível desenvolver um front-end e back-end,
+respectivamente, da linguagem de programação SmallL tendo como máquina alvo a máquina virtual TAM \cite{Watt:2007:PLP:1557477}.
+Nesse trabalho, a tarefa é a de integrar essas duas partes para desenvolver um compilador completo.
+
+\section{METODOLOGIA} \label{sec:met}
+
+Tendo os Trabalhos Práticos II e III em mãos, para criar o compilador integrado foi necessário somente escrever um programa
+que chama cada um dos programas criados nos trabalhos práticos anteriores e utiliza a saída de um como entrada do outro.
+
+Dessa forma, o arquivo fonte escrito em SmallL é passado como entrada para o programa do TPII e o arquivo em código intermediário
+de saída do TPII é passado como entrada para o programa do TPIII. A saída do TPIII é então o programa SmallL inicial escrito
+na linguagem de máquina TAM.
+
+\section{CÓDIGO FONTE}
+
+Todo o código do Trabalhos Práticos II e III foi agrupado na pasta \textbf{src}, nos diretórios \textbf{front-end} e
+\textbf{back-end}, respectivamente. Além disso, o compilador integrado é implementado através de um script escrito em Python 3,
+no arquivo \textbf{compiler.py}.
+
+O código fonte desse trabalho pode ser encontrado no diretório do projeto no
+GitHub\footnote{https://github.com/ha2398/compiladores1-tps/tree/master/tp4}.
+
+\section{EXECUÇÃO}
+
+Para executar o compilador, basta executar o comando a seguir em uma máquina com Python 3 instalado, na pasta do
+projeto:
+
+\begin{center}
+  ./compiler.py arquivo\_entrada
+\end{center}
+
+Com isso, será gerado, no mesmo diretório, um arquivo chamado \textbf{out.tam}, que contém as instruções de máquina TAM geradas
+e que pode, então, ser executado através de um interpretador TAM.
+
+\section{TESTES E RESULTADOS}
+
+Para ilustrar o funcionamento do compilador integrado, são apresentados dois exemplos de compilação.
+
+\subsection{right1.txt}
+
+\begin{itemize}
+ \item Código em SmallL:\\
+ 
+  \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../input/right1.txt}
+  \end{mdframed}
+  
+  \mbox{}
+ 
+ \item Código intermediário: \\
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{right1.out}
+  \end{mdframed}
+
+  \mbox{}
+  
+  \item Código TAM: \\
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{right1.tam}
+  \end{mdframed}
+\end{itemize}
+
+\subsection{right3.txt}
+
+\begin{itemize}
+ \item Código em SmallL:\\
+ 
+  \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{../input/right3.txt}
+  \end{mdframed}
+  
+  \mbox{}
+ 
+ \item Código intermediário: \\
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{right3.out}
+  \end{mdframed}
+
+  \mbox{}
+  
+  \item Código TAM: \\
+ 
+ \begin{mdframed}[linecolor=black, leftline=false, rightline=false]
+    \inputminted[linenos, fontsize=\footnotesize]{text}{right3.tam}
+  \end{mdframed}
+\end{itemize}
+
+
+\section{CONCLUSÃO}
+
+Nesse trabalho foi possível verificar o funcionamento completo de um compilador. Durante a disciplina, de forma geral,
+foram adquiridos conhecimentos fundamentais para a construção de Compiladores e de processadores de linguagens de forma
+geral.
+
+\section{REFERÊNCIAS}
+
+\bibliographystyle{sbc}
+\bibliography{sbc-template}
+
+\end{document}
